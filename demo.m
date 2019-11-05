@@ -1,7 +1,8 @@
 % =========================================================================
-% Title: Code for running synthetic data experiments for journal version
-%       Ummixing version
-% Author: JTC (Adapted from Harlin's code for Urban experiments)
+% Title: Code to demo gtvMVO method using synthetic Grayscale Grids data
+%   for "Blind Hyperspectral Unmixing Based on a Graph Total Variation
+%   Regularization" by Jing Qin, Harlin Lee, Jocelyn T. Chi, Lucas Drumetz, 
+%   Jocelyn Chanussot, Yifei Lou, and Andrea L. Bertozzi.
 % =========================================================================
 
 %%  Prep workspacce
@@ -14,12 +15,15 @@ seed = 1;
 rng(seed);
 
 addpath(genpath('./'));
+
+if ~exist('results', 'dir')
+    mkdir('results')
+end
 resultsFolder = 'results';
-fname = fullfile(resultsFolder,'synthetic_output.mat')
+fname = fullfile(resultsFolder,'synthetic_output.mat');
 
-%% Load synthetic grayscale grid data
+%% Load Grayscale Grids dataset
 
-% Parameters for making data using Linda's code
 m = 50;
 n = 50;
 N = m * n;
@@ -27,18 +31,14 @@ k = 144; % spectral dimension
 nEndmembers = 4;
 load('SyntheticData_grayscalegrids.mat');
 
-%% Experiments
+%% Set up experiments
 
-% Rename things to match Harlin's conventions
 X = Xdata;
 A_true = Atruth;
 S_true = Struth;
 
-% Set parameters
 P = nEndmembers; 
 tol = 1e-6;
-
-% Initialize results container
 errs = zeros(13, 7);
 
 %% FCLSU
