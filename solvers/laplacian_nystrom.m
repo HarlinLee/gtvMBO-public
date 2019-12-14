@@ -53,7 +53,7 @@ for i = 1:num_samples
         
     end
 end
-A = single(A);
+%A = single(A);
 
 % calculate the euclidean distance between samples and other points
 other_points = num_rows - num_samples;
@@ -75,7 +75,7 @@ for i = 1:num_samples
         B(i,j) = exp(-d/sigma2);
     end
 end
-B = single(B);
+%B = single(B);
 clear sample_data other_data;
 
 
@@ -94,7 +94,8 @@ clear d1 d2 B1 dhat;
 Asi = sqrtm(pinv(A));
 B_T = B';
 BBT = B*B_T;
-W = single(zeros(size(A, 1)+size(B_T, 1), size(A, 2)));
+%W = single(zeros(size(A, 1)+size(B_T, 1), size(A, 2)));
+W = zeros(size(A, 1)+size(B_T, 1), size(A, 2));
 W(1:size(A, 1), :) = A;
 W(size(A, 1)+1:size(W, 1), :) = B_T;
 clear B B_T;
