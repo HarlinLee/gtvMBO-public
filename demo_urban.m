@@ -26,7 +26,7 @@ end
 
 fname = fullfile(resultsFolder,'urban_output.mat');
 
-%% Load Samson dataset
+%% Load Urban dataset
 load('data/urban/Urban_R162.mat');
 load('data/urban/end4_groundTruth.mat');
 

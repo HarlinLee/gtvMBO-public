@@ -35,9 +35,9 @@ load('data/samson/end3.mat');
 A_ref = A;
 S_ref = M;
 
-% For some reason, the publised S_ref was normalized.
-% Based on Figure 2a in https://arxiv.org/pdf/1708.05125.pdf,
-% We've rescaled S_ref appropriately.
+% The publised S_ref was normalized. 
+% We've rescaled S_ref appropriately
+% based on Figure 2a in https://arxiv.org/pdf/1708.05125.pdf.
 S_ref(:,1) = S_ref(:,1)*0.49;
 S_ref(:,2) = S_ref(:,2)*0.89;
 S_ref(:,3) = S_ref(:,3)*0.07;
