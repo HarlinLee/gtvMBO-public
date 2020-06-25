@@ -506,7 +506,7 @@ V1 = IA*(ATY + mu*NU1);
 NU2 =  U - D2;
 V2 = soft(NU2,lambda_l1/mu);
 % posityvity
-if reg_pos
+if reg_add
 %    V2 = max(0,V2); 
 V2 = proj_simplex_array(V2);
 end
