@@ -565,7 +565,7 @@ export_fig(fullFileName, '-transparent');
 
 % Save laTeX table
 rowNames = {'RMSE$(X, \hat{S}\hat{A})$','nMSE$(X, \hat{S}\hat{A})$','RMSE$(S, \hat{S})$','nMSE$(S, \hat{S})$','SAM$(S, \hat{S})$','RMSE$(A, \hat{A})$','nMSE$(A, \hat{A})$', 'Graph time (sec)', 'time (sec)','$\lambda$','$\rho$','$\gamma$', '$\mu$', 'Iterations'};
-colNames = {'FCLSU','FRAC','Sunsal-TV','GLNMF', 'NMF-QMV', 'GraphL','gtvMBO'};
+colNames = {'FCLSU','FRAC','SunsalTV','GLNMF', 'NMFQMV', 'GraphL','gtvMBO'};
 errsTable = array2table(errs(1:14,1:7),'RowNames',rowNames,'VariableNames',colNames)
 table2latexfancy(errsTable, fullfile(resultsFolder,'errsTable.tex'));
 
