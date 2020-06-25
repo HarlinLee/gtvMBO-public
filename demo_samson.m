@@ -98,7 +98,7 @@ errs(14, c) = Inf;
 
 %% Fractional
 c = c + 1;
-disp('fractional')
+disp('Fractional')
 
 para_fr.method = 'fractional';
 para_fr.fraction = 1/10;
@@ -138,38 +138,38 @@ errs(14, c) = para_fr.iter;
 
 save(fname, '-append', 'A_frac', 'para_fr', 'errs');
 
-%% 2dTV
+%% Sunsal-TV
 c = c+1;
-disp('2dTV');
-para_tv.maxiter = 1000;
-para_tv.m = m;
-para_tv.n = n;
-para_tv.lambda = 10^(-0.75);
+disp('Sunsal-TV');
+para_sunsal.maxiter = 1000;
+para_sunsal.m = m;
+para_sunsal.n = n;
+para_sunsal.lambda = 10^(-2);
 
 tic;
-A_TV = sunsal_vtv(S_init,X,'LAMBDA_1',0, 'LAMBDA_VTV', para_tv.lambda, 'X0', A_init, 'IM_SIZE', [para_tv.m,para_tv.n],  'POSITIVITY', 'yes', 'ADDONE', 'no', 'VERBOSE', 'no','AL_ITERS', para_tv.maxiter); % do not pay attention to the "'ADDONE', 'no'" bit, the sum to one constraint is actually enforced.
-t_2d = toc;
+A_sunsal = sunsal_vtv(S_init,X,'LAMBDA_1',0, 'LAMBDA_VTV', para_sunsal.lambda, 'X0', A_init, 'IM_SIZE', [para_sunsal.m,para_sunsal.n],  'POSITIVITY', 'yes', 'ADDONE', 'no', 'VERBOSE', 'no','AL_ITERS', para_sunsal.maxiter); 
+t_sunsal = toc;
 
-para_tv.iter = para_tv.maxiter;
+para_sunsal.iter = para_sunsal.maxiter;
 
-[A_TV, ~] = find_perm2(A_ref, A_TV);
+[A_sunsal, ~] = find_perm2(A_ref, A_sunsal);
 
-errs(1, c) = RMSE(X, S_init*A_TV);
-errs(2, c) = nMSE(X, S_init*A_TV);
+errs(1, c) = RMSE(X, S_init*A_sunsal);
+errs(2, c) = nMSE(X, S_init*A_sunsal);
 errs(3, c) = Inf;
 errs(4, c) = Inf;
 errs(5, c) = Inf;
-errs(6, c) = RMSE(A_ref, A_TV);
-errs(7, c) = nMSE(A_ref, A_TV);
+errs(6, c) = RMSE(A_ref, A_sunsal);
+errs(7, c) = nMSE(A_ref, A_sunsal);
 errs(8, c) = Inf;
-errs(9, c) = t_2d;
-errs(10, c) = para_tv.lambda; 
+errs(9, c) = t_sunsal;
+errs(10, c) = para_sunsal.lambda; 
 errs(11, c) = Inf; 
 errs(12, c) = Inf;
 errs(13, c) = Inf;
-errs(14, c) = para_tv.iter;
+errs(14, c) = para_sunsal.iter;
 
-save(fname, '-append', 'A_TV', 'para_tv');
+save(fname, '-append', 'A_sunsal', 'para_sunsal');
 
 %% GLNMF
 
@@ -193,7 +193,7 @@ para_nmf.W = sparse(iis, jjs, vvs, N, N);
 para_nmf.d = sum(para_nmf.W,2);
 t_graph = toc;
 
-disp('glnmf');
+disp('GLNMF');
 
 para_nmf.method = 'glnmf';
 para_nmf.itermax = 1000;
@@ -227,6 +227,34 @@ errs(14, c) = para_nmf.iter;
 
 save(fname, '-append', 'A_nmf', 'S_nmf', 'para_nmf');
 
+%% NMF_QMV
+c = c+1;
+para_qmv.method = 'NMF-QMV';
+para_qmv.beta = 10^(2.75);
+para_qmv.term = 'center';
+disp('NMF-QMV');
+
+tic
+[para_qmv.beta, S_qmv, A_qmv, results_save, para_qmv.it] = NMF_QMV(X, P, para_qmv.beta, para_qmv.term,'DRAWFIGS','no');
+t = toc;
+[A_qmv, S_qmv, ~] = find_perm(A_ref, A_qmv, S_qmv);
+
+errs(1, c) = RMSE(X, S_qmv*A_qmv);
+errs(2, c) = nMSE(X, S_qmv*A_qmv);
+errs(3, c) = RMSE(S_ref, S_qmv);
+errs(4, c) = nMSE(S_ref, S_qmv);
+errs(5, c) = SAM(S_ref, S_qmv);
+errs(6, c) = RMSE(A_ref, A_qmv);
+errs(7, c) = nMSE(A_ref, A_qmv);
+errs(8, c) = Inf;
+errs(9, c) = t;
+errs(10, c) = para_qmv.beta; 
+errs(11, c) = Inf; 
+errs(12, c) = Inf;
+errs(13, c) = Inf;
+errs(14, c) = para_qmv.it;
+save(fname, '-append', 'A_qmv', 'S_qmv', 'para_qmv');
+
 %% Nystrom extension
 disp('Nystrom extension');
 
@@ -250,7 +278,7 @@ para_gL.lambda = 10^(-5.25);
 para_gL.rho = 10^(-1.75);
 para_gL.gamma = 10^5;
 
-disp('graph Laplacian');
+disp('graphL');
 tic;
 [S_graphL, A_graphL, iter] = unmixing(X, S_init, A_init, para_gL);
 t_gL = toc;
@@ -371,7 +399,7 @@ errs
 
 % Plot results for A
 fig = figure;
-[ha, ~] = tight_subplot(8, P, [.03 .03], [.03 .03], [0 0]);
+[ha, ~] = tight_subplot(9, P, [.03 .03], [.03 .03], [0 0]);
 for i = 1:P
     axes(ha(i));
     imshow(reshape(A_ref(i,:), m,n), []);axis off;colormap gray
@@ -389,8 +417,8 @@ for i = 1:P
 end
 for i = 1:P
     axes(ha(i+3*P));
-    imshow(reshape(A_TV(i,:),m,n),[]); axis off;
-    title('2dTV')
+    imshow(reshape(A_sunsal(i,:),m,n),[]); axis off;
+    title('sunsal-TV')
 end
 for i = 1:P
     axes(ha(i+4*P));
@@ -399,16 +427,21 @@ for i = 1:P
 end
 for i = 1:P
     axes(ha(i+5*P));
+    imshow(reshape(A_qmv(i,:),m,n),[]); axis off;
+    title('NMF-QMV')
+end
+for i = 1:P
+    axes(ha(i+6*P));
     imshow(reshape(A_graphL(i,:),m,n),[]); axis off;
     title('graphL')
 end
 for i = 1:P
-    axes(ha(i+6*P));
+    axes(ha(i+7*P));
     imshow(reshape(A_MBO(i,:),m,n),[]);axis off;
     title('gtvMBO')
 end
 for i = 1:P
-    axes(ha(i+7*P));
+    axes(ha(i+8*P));
     imshow(reshape(A_MBO(i,:),m,n),[]);axis off;
     title('gtvMBO fixed ratio')
 end
@@ -430,14 +463,19 @@ for i = 1:P
     pngFileName = sprintf('frac%d.png', i);
     fullFileName = fullfile(resultsFolder, pngFileName);
     export_fig(fullFileName);
-     
-    f = figure('visible','off'); imshow(reshape(A_TV(i,:), m,n), []); 
-    pngFileName = sprintf('tv%d.png', i);
+
+    f = figure('visible','off'); imshow(reshape(A_sunsal(i,:), m,n), []); 
+    pngFileName = sprintf('sunsal%d.png', i);
     fullFileName = fullfile(resultsFolder, pngFileName);
     export_fig(fullFileName);
     
     f = figure('visible','off'); imshow(reshape(A_nmf(i,:), m,n), []); 
     pngFileName = sprintf('glnmf%d.png', i);
+    fullFileName = fullfile(resultsFolder, pngFileName);
+    export_fig(fullFileName);
+    
+    f = figure('visible','off'); imshow(reshape(A_qmv(i,:), m,n), []); 
+    pngFileName = sprintf('qmv%d.png', i);
     fullFileName = fullfile(resultsFolder, pngFileName);
     export_fig(fullFileName);
      
@@ -450,21 +488,17 @@ for i = 1:P
     pngFileName = sprintf('mbo%d.png', i);
     fullFileName = fullfile(resultsFolder, pngFileName);
     export_fig(fullFileName);
-    
-    f = figure('visible','off'); imshow(reshape(A_MBO_fixed(i,:), m,n), []); 
-    pngFileName = sprintf('mbo_fixed%d.png', i);
-    fullFileName = fullfile(resultsFolder, pngFileName);
-    export_fig(fullFileName);
 end
 
 % Plot results for S (FCLSU and fractional don't produce S)
 figout3 = figure;
-subplot(2,3,1); plot(S_ref); title('Reference');
-subplot(2,3,2); plot(S_init); title('VCA');
-subplot(2,3,3); plot(S_nmf); title('GLNMF');
-subplot(2,3,4); plot(S_graphL); title('GraphL');
-subplot(2,3,5); plot(S_MBO); title('gtvMBO');
-subplot(2,3,6); plot(S_MBO_fixed); title('gtvMBO fixed ratio');
+subplot(2,4,1); plot(S_ref); title('Reference');
+subplot(2,4,2); plot(S_init); title('VCA');
+subplot(2,4,3); plot(S_nmf); title('GLNMF');
+subplot(2,4,4); plot(S_qmv); title('NMF-QMV');
+subplot(2,4,5); plot(S_graphL); title('GraphL');
+subplot(2,4,6); plot(S_MBO); title('gtvMBO');
+subplot(2,4,7); plot(S_MBO_fixed); title('gtvMBO fixed ratio');
 
 export_fig(fullfile(resultsFolder,'samsonResultsS.png'));
 export_fig(fullfile(resultsFolder,'samsonResultsS_transparent.png'), '-transparent');
@@ -474,7 +508,8 @@ export_fig(fullfile(resultsFolder,'samsonResultsS_transparent.png'), '-transpare
 f = figure('visible','off'); plot(S_ref, 'LineWidth', 2); 
 axis square;
 axis([0 160 0 1.1])
-set(gca,'FontSize',24)
+xticks([0 80 160])
+set(gca,'FontSize',36)
 pngFileName = 'S_ref.png';
 fullFileName = fullfile(resultsFolder, pngFileName);
 export_fig(fullFileName, '-transparent');
@@ -482,7 +517,8 @@ export_fig(fullFileName, '-transparent');
 f = figure('visible','off'); plot(S_init, 'LineWidth', 2); 
 axis square;
 axis([0 160 0 1.1])
-set(gca,'FontSize',24)
+xticks([0 80 160])
+set(gca,'FontSize',36)
 pngFileName = 'S_vca.png';
 fullFileName = fullfile(resultsFolder, pngFileName);
 export_fig(fullFileName, '-transparent');
@@ -490,33 +526,45 @@ export_fig(fullFileName, '-transparent');
 f = figure('visible','off'); plot(S_nmf, 'LineWidth', 2); 
 axis square;
 axis([0 160 0 1.1])
-set(gca,'FontSize',24)
+xticks([0 80 160])
+set(gca,'FontSize',36)
 pngFileName = 'S_nmf.png';
+fullFileName = fullfile(resultsFolder, pngFileName);
+export_fig(fullFileName, '-transparent');
+
+f = figure('visible','off'); plot(S_qmv, 'LineWidth', 2); 
+axis square;
+axis([0 160 0 1.1])
+xticks([0 80 160])
+set(gca,'FontSize',36)
+pngFileName = 'S_qmv.png';
 fullFileName = fullfile(resultsFolder, pngFileName);
 export_fig(fullFileName, '-transparent');
 
 f = figure('visible','off'); plot(S_graphL, 'LineWidth', 2); 
 axis square;
 axis([0 160 0 1.1])
-set(gca,'FontSize',24)
+xticks([0 80 160])
+set(gca,'FontSize',36)
 pngFileName = 'S_graphL.png';
 fullFileName = fullfile(resultsFolder, pngFileName);
 export_fig(fullFileName, '-transparent');
 
 f = figure('visible','off'); plot(S_MBO, 'LineWidth', 2); 
-lgd = legend('Parking','Roofs','Chairs','Vegetation','Location', 'eastoutside');
+lgd = legend('Rock','Tree','Water','Location', 'eastoutside');
 lgd.FontSize = 36;
 legend('boxoff')     
 axis square;
 axis([0 160 0 1.1])
-set(gca,'FontSize',20)
+xticks([0 80 160])
+set(gca,'FontSize',36)
 pngFileName = 'S_mbo.png';
 fullFileName = fullfile(resultsFolder, pngFileName);
 export_fig(fullFileName, '-transparent');
 
 % Save laTeX table
 rowNames = {'RMSE$(X, \hat{S}\hat{A})$','nMSE$(X, \hat{S}\hat{A})$','RMSE$(S, \hat{S})$','nMSE$(S, \hat{S})$','SAM$(S, \hat{S})$','RMSE$(A, \hat{A})$','nMSE$(A, \hat{A})$', 'Graph time (sec)', 'time (sec)','$\lambda$','$\rho$','$\gamma$', '$\mu', 'Iterations'};
-colNames = {'FCLSU','FRAC','TV','GLNMF','GraphL','gtvMBO'};
-errsTable = array2table(errs(1:14,1:6),'RowNames',rowNames,'VariableNames',colNames)
+colNames = {'FCLSU','FRAC','Sunsal-TV','GLNMF', 'NMF-QMV', 'GraphL','gtvMBO'};
+errsTable = array2table(errs(1:14,1:7),'RowNames',rowNames,'VariableNames',colNames)
 table2latexfancy(errsTable, fullfile(resultsFolder,'errsTable.tex'));
 
