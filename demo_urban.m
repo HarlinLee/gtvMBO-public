@@ -535,7 +535,7 @@ export_fig(fullFileName, '-transparent');
 
 f = figure('visible','off'); plot(S_qmv, 'LineWidth', 2); 
 axis square;
-axis([0 170 0 0.8])
+axis([0 170 -0.21 0.8])
 xticks([0 85 170])
 set(gca,'FontSize',36)
 pngFileName = 'S_qmv.png';
