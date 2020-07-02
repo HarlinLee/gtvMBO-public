@@ -68,8 +68,8 @@ function table2latexfancy(T, filename)
                 if isstruct(value), error('Table must not contain structs.'); end
                 while iscell(value), value = value{1,1}; end
                 if isinf(value), value = '$-$'; end
-                if row > 9 && row < size(T,1) && isnumeric(value) && sum(ismember([value],[0.01,0.1,1,10,100]))<1, value = strcat('$10^{', num2str(round(log10(value),2)), '}$'); end
-                if isnumeric(value), value = round(value,3); end
+                if row > 9 && row < size(T,1) && isnumeric(value) && sum(ismember([value],[0.01,0.1,1,10,100]))<1, value = strcat('$10^{', num2str(round(log10(value),3,'significant')), '}$'); end
+                if isnumeric(value), value = round(value,3,'significant'); end
                 temp{1,col} = num2str(value);
             end
             if ~isempty(row_names)
